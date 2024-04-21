@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+
+
+
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,14 +15,25 @@
     <title>Document</title>
 </head>
 <body>
-    
 
 
 
 
 
+    <nav></nav>
 
 
-        <!-- ARQUIVOS JQUERY E JAVASCRIPT
+
+        <!-- ARQUIVOS JQUERY E JAVASCRIPT-->
+        <sricpt type="text/javascript" src="marialize/js/jquery-3.7.1.min.js"></script>
+            <sricpt type="text/javascript" src="marialize/js/materialize.min.js"></cript>
+        <!-- INICIAÇÃO JQUERY -->
+        <script type="text/javascript">
+            $(document).ready(function(){
+
+            });
+        </script>
+
+
 </body>
 </html>

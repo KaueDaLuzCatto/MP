@@ -1,5 +1,4 @@
 <?php 
-session_start();
 include_once 'includes/header.inc.php';
 include_once 'includes/menu.inc.php';
 ?>
@@ -51,14 +50,14 @@ endwhile;
 
                     <!--CAMPO DESCRIÇÃO ALIQUOTA-->
                     <div class="input-field col s12">
-                        <input type="text" name="descricao_aliquota" id="descricao_aliquota" value="<?php echo $descricao_aliquota ?>" maxlength="80" required autofocus>
-                        <label for="descricao_aliquota">Descricao Aliquota</label>
+                        <input placeholder="Descricao Aliquota" type="text" name="descricao_aliquota" id="descricao_aliquota" value="<?php echo $descricao_aliquota ?>" maxlength="80" required autofocus>
+                        <label for="descricao_aliquota"></label>
                     </div>
 
                     <!--CAMPO PERCENTUAL ALIQUOTA-->
                     <div class="input-field col s12">
-                    <input type="text" name="percentual_aliquota" id="percentual_aliquota" maxlength="5" pattern="\d+(\.\d{1,2})?" value="<?php echo $percentual_aliquota ?>" required autofocus>
-                        <label for="percentual_aliquota">Percentual Aliquota</label>
+                    <input placeholder="Percentual Aliquota" type="text" name="percentual_aliquota" id="percentual_aliquota" maxlength="5" pattern="\d+(\.\d{1,2})?" value="<?php echo $percentual_aliquota ?>" required autofocus>
+                        <label for="percentual_aliquota"></label>
                         <span class="helper-text" data-error="Formato inválido. Use um número inteiro ou até duas casas decimais (ex: 39,99 ou 40)"></span>
                     </div>
 
@@ -77,8 +76,8 @@ endwhile;
 
                     <!--CAMPO Usuario da Manutenção-->
                     <div class="input-field col s12">
-                        <input type="text" name="usuario_manutencao" id="usuario_manutencao" value="<?php echo $usuario_manutencao ?>" maxlength="20">
-                        <label for="usuario_manutencao">Usuario da Manutenção</label>
+                        <input placeholder="Usuario da Manutenção" type="text" name="usuario_manutencao" id="usuario_manutencao" value="<?php echo $usuario_manutencao ?>" maxlength="20">
+                        <label for="usuario_manutencao"></label>
                     </div>
 
                     <!-- BOTÕES -->

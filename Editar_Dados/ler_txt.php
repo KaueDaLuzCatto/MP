@@ -20,13 +20,8 @@
                     include_once 'ler_txt.php';
                 ?>
         </form>
-            <tbody>
-                <?php
-                    include_once 'ler_txt.php';
-                ?>
-            </tbody>
-        </table>
     </div>
+    <div class="row container">
 </div>
 
 
@@ -81,7 +76,6 @@ if(isset($_POST["submit"])) {
                 $percentual_aliquota = $row["percentual_aliquota"];
                 $valor_imposto = ($valor_tributar * $percentual_aliquota) / 100;
                 ?>
-                <div class="row container">
                 <div class="card-panel teal lighten-5">
                     <p><strong>Código do Município:</strong> <?php echo $codigo_municipio; ?></p>
                     <p><strong>Data do Serviço:</strong> <?php echo $data_servico; ?></p>
@@ -90,11 +84,9 @@ if(isset($_POST["submit"])) {
                     <p><strong>Descrição do Serviço:</strong> <?php echo $codigo_servico; ?></p>
                     <p><strong>Valor do Imposto:</strong> <?php echo $valor_imposto; ?></p>
                 </div>
-            </div>
                 <?php
             } else {
                 ?>
-                <div class="row container">
                 <div class="card-panel red lighten-5">
                     <p><strong>Código do Município:</strong> <?php echo $codigo_municipio; ?></p>
                     <p><strong>Data do Serviço:</strong> <?php echo $data_servico; ?></p>
@@ -103,7 +95,7 @@ if(isset($_POST["submit"])) {
                     <p><strong>Descrição do Serviço:</strong> <?php echo $codigo_servico; ?></p>
                     <p><strong>Mensagem de Retorno:</strong> Os dados que você forneceu ao importar o arquivo não constam na base de dados</p>
                 </div>
-                </div
+                
                 <?php
             }
         }

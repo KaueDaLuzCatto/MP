@@ -1,110 +1,119 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Importar TXT</title>
-</head>
-<body>
-    <form action="ler_txt.php" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".txt">
-        <button type="submit" name="submit">Importar</button>
-    </form>
-</body>
-</html>
+<?php include_once 'includes/header.inc.php' ?>
+<?php include_once 'includes/menu.inc.php' ?>
+
+<div class="row container">
+    <div class="col s12">
+        <h5 class="light">Consultas</h5><hr>
+        <!-- Formulário HTML para enviar o arquivo -->
+        <form action="ler_txt.php" method="post" enctype="multipart/form-data">
+            <div class="file-field input-field">
+                <button class="btn waves-effect waves-light">
+                    Selecione o arquivo TXT
+                    <input type="file" name="fileToUpload" id="fileToUpload">
+</button>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text">
+                </div>
+            </div>
+            <button class="btn waves-effect waves-light" type="submit" name="submit">Importar arquivo</button>
+            <?php
+                    include_once 'ler_txt.php';
+                ?>
+        </form>
+            <tbody>
+                <?php
+                    include_once 'ler_txt.php';
+                ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 
 <?php
-// Oculta os warnings e fatal errors
-error_reporting(E_ERROR | E_PARSE);
- 
-// Verifica se o arquivo foi enviado corretamente
-if ($_FILES["file"]["error"] > 0) {
-    echo "Erro ao enviar o arquivo: " . $_FILES["file"]["error"];
-} else {
-    // Define o caminho para salvar o arquivo temporariamente
-    $caminho_temporario = $_FILES["file"]["tmp_name"];
- 
-    $codigo_municipio = filter_input(INPUT_POST, 'codigo_municipio', FILTER_SANITIZE_NUMBER_INT);
-    $data_vigencia = filter_input(INPUT_POST, 'data_vigencia', FILTER_SANITIZE_NUMBER_INT);
-    $codigo_servico = filter_input(INPUT_POST, 'codigo_servico', FILTER_SANITIZE_NUMBER_INT);
-    $conta = filter_input(INPUT_POST, 'conta', FILTER_SANITIZE_NUMBER_INT);
-    
-    $data_manutencao = filter_input(INPUT_POST, 'data_manutencao', FILTER_SANITIZE_NUMBER_INT);
-    $hora_manutencao = filter_input(INPUT_POST, 'hora_manutencao', FILTER_SANITIZE_NUMBER_INT);
-    $usuario_manutencao = filter_input(INPUT_POST, 'usuario_manutencao', FILTER_SANITIZE_SPECIAL_CHARS);
-    
-    // Tratamento específico para campos de data e hora
-    $data_vigencia = date("Y-m-d", strtotime($data_vigencia));
-    //$data_manutencao = date("Y-m-d H:i:s", strtotime("$data_manutencao $hora_manutencao"));
-    $data_manutencao = date("Y-m-d", strtotime($data_manutencao));
-    $hora_manutencao = date("H:i:s", strtotime($hora_manutencao));
+include_once 'banco_de_dados/conexao.php';
 
-    // Verifica se o arquivo foi enviado com sucesso
-    if (is_uploaded_file($caminho_temporario)) {
-        // Abre o arquivo TXT para leitura
-        if (($handle = fopen($caminho_temporario, "r")) !== FALSE) {
-            // Conecta ao banco de dados
-            include 'conexao.php';
- 
-            // Loop para processar cada linha do arquivo TXT
-            while (($dados = fgetcsv($handle, 1000, ";")) !== FALSE) {
-                // Os dados estão no array $dados, onde cada elemento corresponde a uma coluna no TXT
- 
-                $codigo_municipio = $dados[0];
-                $data_servico = $dados[1];
-                $conta = $dados[2];
-                $codigo_servico = $dados[3];
-                $valor_tributar = $dados[4];
-                $descricao_servico = $dados[5];
- 
-                // Consulta a alíquota na tabela tab_aliquota usando prepared statements
-                $sql_aliquota = "SELECT codigo_municipio, data_vigencia, codigo_servico, percentual_aliquota FROM tb_aliquotas WHERE codigo_municipio = ? AND data_vigencia <= ? AND codigo_servico = ?";
-                $stmt = $conexao->prepare($sql_aliquota);
-                $stmt->bind_param("iss", $codigo_municipio, $data_servico, $codigo_servico);
-                $stmt->execute();
-                $result_aliquota = $stmt->get_result();
- 
-                if ($result_aliquota) {
-                    $row_aliquota = $result_aliquota->fetch_assoc();
-                    if ($row_aliquota) {
-                        $percentual_aliquota = $row_aliquota['percentual_aliquota'];
- 
-                        // Verifica se a conta está cadastrada na tabela conta
-                        $sql_verifica_conta = "SELECT COUNT(*) AS num_contas FROM conta WHERE codigo_municipio = ? AND data_vigencia <= ? AND codigo_servico = ? AND conta = ?";
-                        $stmt_conta = $conexao->prepare($sql_verifica_conta);
-                        $stmt_conta->bind_param("issi", $codigo_municipio, $data_servico, $codigo_servico, $conta);
-                        $stmt_conta->execute();
-                        $result_verifica_conta = $stmt_conta->get_result();
-                        $row_verifica_conta = $result_verifica_conta->fetch_assoc();
- 
-                        if ($row_verifica_conta['num_contas'] > 0) {
-                            // Calcula o valor do imposto
-                            $valor_imposto = $valor_tributar * $percentual_aliquota / 100;
- 
-                            // Exibe os resultados para cada linha do arquivo TXT
-                            echo "Código Município: $codigo_municipio<br>";
-                            echo "Data Serviço: $data_servico<br>";
-                            echo "Conta: $conta<br>";
-                            echo "Valor Tributar: $valor_tributar<br>";
-                            echo "Descrição Serviço: $descricao_servico<br>";
-                            echo "Percentual Alíquota: $percentual_aliquota<br>";
-                            echo "Valor Imposto: $valor_imposto<br>";
-                            echo "<hr>";
-                        } else {
-                            echo "A conta $conta não está cadastrada para o código de município $codigo_municipio, data de vigência $data_servico e código de serviço $codigo_servico <br>";
-                        }
-                    } else {
-                        echo "Alíquota não encontrada para o código de município $codigo_municipio, data de vigência $data_servico e código de serviço $codigo_servico<br>";
-                    }
-                } else {
-                    echo "Erro na consulta SQL: " . $conexao->error;
-                }
+// Verificar se o formulário foi enviado
+if(isset($_POST["submit"])) {
+    // Verificar se o arquivo foi enviado sem erros
+    if ($_FILES["fileToUpload"]["error"] == UPLOAD_ERR_OK) {
+        // Ler o conteúdo do arquivo
+        $file_content = file_get_contents($_FILES["fileToUpload"]["tmp_name"]);
+        
+        // Verificar se o conteúdo do arquivo corresponde à estrutura esperada
+        $lines = explode("\n", $file_content);
+        foreach($lines as $line) {
+            $data = explode(";", $line);
+            if(count($data) != 6) {
+                echo "Erro: O arquivo não está na estrutura correta.";
+                exit();
             }
-            fclose($handle); // Fecha o arquivo TXT
-        } else {
-            echo "Erro ao abrir o arquivo TXT";
+        }
+
+        // Processar os dados do arquivo e comparar com o banco de dados
+        foreach($lines as $line) {
+            $data = explode(";", $line);
+            $codigo_municipio = $data[0];
+            $data_servico = DateTime::createFromFormat('d/m/Y', trim($data[1]));
+            if ($data_servico === false) {
+                echo "Erro: Formato de data inválido.";
+                exit();
+            }
+            $data_servico = $data_servico->format('Y-m-d');
+            $conta = $data[2];
+            $codigo_servico = $data[3];
+            $valor_tributar = (double) $data[4];
+            $usuario_manutencao = trim($data[5]); // Remove espaços em branco no início e no final
+
+            // Verificar se os dados existem no banco de dados
+            $query = "SELECT a.percentual_aliquota
+                      FROM tb_conta c
+                      LEFT JOIN tb_aliquotas a ON c.codigo_municipio = a.codigo_municipio 
+                                                AND c.data_vigencia <= a.data_vigencia 
+                                                AND c.codigo_servico = a.codigo_servico
+                      WHERE c.codigo_municipio = $codigo_municipio 
+                        AND c.data_vigencia <= '$data_servico' 
+                        AND c.conta = $conta";
+            $result = $link->query($query);
+
+            if ($result && $result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $percentual_aliquota = $row["percentual_aliquota"];
+                $valor_imposto = ($valor_tributar * $percentual_aliquota) / 100;
+                ?>
+                <div class="row container">
+                <div class="card-panel teal lighten-5">
+                    <p><strong>Código do Município:</strong> <?php echo $codigo_municipio; ?></p>
+                    <p><strong>Data do Serviço:</strong> <?php echo $data_servico; ?></p>
+                    <p><strong>Conta:</strong> <?php echo $conta; ?></p>
+                    <p><strong>Valor a Tributar:</strong> <?php echo $valor_tributar; ?></p>
+                    <p><strong>Descrição do Serviço:</strong> <?php echo $codigo_servico; ?></p>
+                    <p><strong>Valor do Imposto:</strong> <?php echo $valor_imposto; ?></p>
+                </div>
+            </div>
+                <?php
+            } else {
+                ?>
+                <div class="row container">
+                <div class="card-panel red lighten-5">
+                    <p><strong>Código do Município:</strong> <?php echo $codigo_municipio; ?></p>
+                    <p><strong>Data do Serviço:</strong> <?php echo $data_servico; ?></p>
+                    <p><strong>Conta:</strong> <?php echo $conta; ?></p>
+                    <p><strong>Valor a Tributar:</strong> <?php echo $valor_tributar; ?></p>
+                    <p><strong>Descrição do Serviço:</strong> <?php echo $codigo_servico; ?></p>
+                    <p><strong>Mensagem de Retorno:</strong> Os dados que você forneceu ao importar o arquivo não constam na base de dados</p>
+                </div>
+                </div
+                <?php
+            }
         }
     } else {
-        echo "Erro ao receber o arquivo enviado";
+        echo "Erro ao carregar o arquivo.";
     }
 }
 ?>
+
+
+
+
+

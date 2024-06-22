@@ -58,7 +58,8 @@ if(isset($_POST["submit"])) {
             $conta = $data[2];
             $codigo_servico = $data[3];
             $valor_tributar = (double) $data[4];
-            $usuario_manutencao = trim($data[5]); // Remove espaços em branco no início e no final
+            $usuario_manutencao = trim($data[5]); 
+            // Remove espaços em branco no início e no final
 
             // Verificar se os dados existem no banco de dados
             $query = "SELECT a.percentual_aliquota
